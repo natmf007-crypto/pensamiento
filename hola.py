@@ -1,1 +1,1 @@
-print("Di jerga")
+print("Un yakiyuno o q ?")
