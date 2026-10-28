@@ -84,9 +84,9 @@ lineas['Línea 6'] = [
     'San Bartolo', 'IPN', 'Riobamba', 'Deportivo 18 de Marzo', 'La Villa',
     'De los Misterios', 'Hospital Infantil La Villa', 'Gustavo A. Madero',
     'Martín Carrera', 'Hospital General La Villa', 'San Juan de Aragón',
-    'Gran Canal', 'Casas Alemán', 'Pueblo San Juan de Aragon',
+    'Gran Canal', 'Casas Alemán', 'Pueblo San Juan de Aragón',
     'Loreto Fabela', '416 Poniente', 'Deportivo Los Galeana',
-    'Ampliación Providencia', 'Volcan de Fuego', '482', '414', '416 Oriente',
+    'Ampliación Providencia', 'Volcán de Fuego', '482', '414', '416 Oriente',
     'La Pradera', 'Colegio de Bachilleres 9', 'Francisco Morazán',
     'Villa de Aragón',
 ]
@@ -108,72 +108,31 @@ for nombre in lineas:
     for i in range(len(estaciones) - 1):
         G.add_edge(estaciones[i], estaciones[i + 1], linea=nombre)
 
+print('Número de estaciones:', G.number_of_nodes())
+print('Número de conexiones:', G.number_of_edges())
+
+lineas_de = {}
 for nombre in lineas:
     numero = nombre.split(' ')[1]
     for estacion in lineas[nombre]:
-        if 'lineas' not in G.nodes[estacion]:
-            G.nodes[estacion]['lineas'] = []
-        if numero not in G.nodes[estacion]['lineas']:
-            G.nodes[estacion]['lineas'].append(numero)
-
-print(G)
-print('Número de estaciones:', G.number_of_nodes())
-print('Número de conexiones:', G.number_of_edges())
-print('¿Es conexo?', nx.is_connected(G))
+        if estacion not in lineas_de:
+            lineas_de[estacion] = []
+        if numero not in lineas_de[estacion]:
+            lineas_de[estacion].append(numero)
 
 transbordos = []
-for estacion in G.nodes:
-    if len(G.nodes[estacion]['lineas']) > 1:
+for estacion in lineas_de:
+    if len(lineas_de[estacion]) > 1:
         transbordos.append(estacion)
 print('Estaciones de transbordo:', len(transbordos))
+print(transbordos)
 
-grados = dict(G.degree)
-mas_conectadas = sorted(grados, key=grados.get, reverse=True)[:5]
-print('Estaciones con más conexiones:')
-for estacion in mas_conectadas:
-    print(' ', estacion, grados[estacion])
-
-centralidad = nx.betweenness_centrality(G)
-mas_centrales = sorted(centralidad, key=centralidad.get, reverse=True)[:5]
-print('Estaciones más importantes (intermediación):')
-for estacion in mas_centrales:
-    print(' ', estacion, round(centralidad[estacion], 3))
-
-articulacion = list(nx.articulation_points(G))
-print('Puntos de articulación:', len(articulacion))
-
-origen = 'Indios Verdes'
-destino = 'Tepalcates'
-ruta = nx.shortest_path(G, origen, destino)
-print('Ruta más corta de', origen, 'a', destino)
+ruta = nx.shortest_path(G, 'Indios Verdes', 'Tepalcates')
+print('Ruta más corta de Indios Verdes a Tepalcates:')
 print(' -> '.join(ruta))
-print('Paradas:', len(ruta) - 1)
 
-colores = {
-    'Línea 1': 'red',
-    'Línea 2': 'purple',
-    'Línea 3': 'green',
-    'Línea 4 Norte': 'orange',
-    'Línea 4 Sur': 'gold',
-    'Línea 5': 'blue',
-    'Línea 6': 'hotpink',
-    'Línea 7': 'darkgreen',
-}
-
-colores_aristas = []
-for a, b in G.edges:
-    colores_aristas.append(colores[G.edges[a, b]['linea']])
-
-pos = nx.kamada_kawai_layout(G)
-
-plt.figure(figsize=(18, 14))
-nx.draw_networkx_edges(G, pos, edge_color=colores_aristas, width=2)
-nx.draw_networkx_nodes(G, pos, node_size=25, node_color='black')
-nx.draw_networkx_nodes(G, pos, nodelist=transbordos, node_size=90,
-                       node_color='white', edgecolors='black')
-nx.draw_networkx_labels(G, pos, labels={t: t for t in transbordos}, font_size=7)
+pos = nx.spring_layout(G, seed=1)
+plt.figure(figsize=(14, 10))
+nx.draw(G, pos, node_size=20, node_color='steelblue', edge_color='gray')
 plt.title('Red del Metrobús CDMX')
-plt.axis('off')
-plt.tight_layout()
-plt.savefig('metrobus.png', dpi=150)
 plt.show()
