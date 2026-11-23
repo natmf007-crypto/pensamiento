@@ -101,38 +101,44 @@ lineas['Línea 7'] = [
     'Chapultepec', 'Gandhi', 'Antropología', 'Auditorio', 'Campo Marte',
 ]
 
-G = nx.Graph()
+def main():
+    G = nx.Graph()
 
-for nombre in lineas:
-    estaciones = lineas[nombre]
-    for i in range(len(estaciones) - 1):
-        G.add_edge(estaciones[i], estaciones[i + 1], linea=nombre)
+    for nombre in lineas:
+        estaciones = lineas[nombre]
+        for i in range(len(estaciones) - 1):
+            G.add_edge(estaciones[i], estaciones[i + 1], linea=nombre)
 
-print('Número de estaciones:', G.number_of_nodes())
-print('Número de conexiones:', G.number_of_edges())
+    print('Número de estaciones:', G.number_of_nodes())
+    print('Número de conexiones:', G.number_of_edges())
 
-lineas_de = {}
-for nombre in lineas:
-    numero = nombre.split(' ')[1]
-    for estacion in lineas[nombre]:
-        if estacion not in lineas_de:
-            lineas_de[estacion] = []
-        if numero not in lineas_de[estacion]:
-            lineas_de[estacion].append(numero)
+    lineas_de = {}
+    for nombre in lineas:
+        numero = nombre.split(' ')[1]
+        for estacion in lineas[nombre]:
+            if estacion not in lineas_de:
+                lineas_de[estacion] = []
+            if numero not in lineas_de[estacion]:
+                lineas_de[estacion].append(numero)
 
-transbordos = []
-for estacion in lineas_de:
-    if len(lineas_de[estacion]) > 1:
-        transbordos.append(estacion)
-print('Estaciones de transbordo:', len(transbordos))
-print(transbordos)
+    transbordos = []
+    for estacion in lineas_de:
+        if len(lineas_de[estacion]) > 1:
+            transbordos.append(estacion)
+    print('Estaciones de transbordo:', len(transbordos))
+    print(transbordos)
 
-ruta = nx.shortest_path(G, 'Indios Verdes', 'Tepalcates')
-print('Ruta más corta de Indios Verdes a Tepalcates:')
-print(' -> '.join(ruta))
+    ruta = nx.shortest_path(G, 'Indios Verdes', 'Tepalcates')
+    print('Ruta más corta de Indios Verdes a Tepalcates:')
+    print(' -> '.join(ruta))
 
-pos = nx.spring_layout(G, seed=1)
-plt.figure(figsize=(14, 10))
-nx.draw(G, pos, node_size=20, node_color='steelblue', edge_color='gray')
-plt.title('Red del Metrobús CDMX')
-plt.show()
+    pos = nx.spring_layout(G, seed=1)
+    plt.figure(figsize=(14, 10))
+    nx.draw(G, pos, node_size=20, node_color='steelblue', edge_color='gray')
+    plt.title('Red del Metrobús CDMX')
+    plt.show()
+
+
+
+if __name__ == '__main__':
+    main()
